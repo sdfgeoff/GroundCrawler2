@@ -1,0 +1,23 @@
+name: Export Mechanical Models for Manufacture
+on: [push, pull_request]
+jobs:
+  ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Dependencies
+      run: |
+        sudo apt-get install freecad tup prusa-slicer
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        lfs: 'true'
+    - name: Build
+      run: |
+        cd Mechanical; tup -j1
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: CAD_Exports
+        path: |
+          Mechanical/generated
+    
