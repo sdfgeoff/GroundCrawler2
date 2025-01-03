@@ -7,7 +7,7 @@ tools_folder = Path(__file__).parent.absolute()
 
 SLICER = "prusa-slicer"
 
-SLICER_CONFIG_FILE = tools_folder / "SnapmakerA350PLA-CHT.ini"
+SLICER_CONFIG_FILE = tools_folder / "SnapmakerA350PLA.ini"
 
 in_file_path = sys.argv[1]
 out_file_path = sys.argv[2]
