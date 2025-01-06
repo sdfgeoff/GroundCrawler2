@@ -1,2 +1,6 @@
 .tup
 *.FCBak
+__pycache__
+*.pyc
+*.avi
+*.mp4
