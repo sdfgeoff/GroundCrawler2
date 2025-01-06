@@ -80,6 +80,13 @@ def main():
         cv2.waitKey(1)
 
 
+        # Print FPS
+        if t % 10 == 0:
+            new_time = time.time()
+            print(f"FPS: {10 / (new_time - prev_time)}")
+            prev_time = new_time
+
+
 
 if __name__ == "__main__":
     main()

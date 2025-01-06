@@ -1,6 +1,7 @@
 import os
+import torch
 
-DEVICE = "cpu"
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 CACHE_SIZE = 512
 BATCH_SIZE = CACHE_SIZE
 TRAINING_SET_MIN_FRAMES_BETWEEN_UPDATE = 1
@@ -16,7 +17,7 @@ VIDEO_SOURCES = [
 ]
 
 
-ENABLE_TRAIN = False
+ENABLE_TRAIN = True
 SAVE_TRAINING_VIDEO = True
 SAVE_TRAINING_DATASET_VIDEO = False
 

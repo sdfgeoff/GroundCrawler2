@@ -35,13 +35,13 @@ class VisionModel:
         if self.optimizer is None:
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-5)
         if self.loss_fn is None:
-            nn.MSELoss()
+            self.loss_fn = nn.MSELoss()
         if self.training_iteration is None:
             self.training_iteration = 0
 
         if self.training_data is None:
             # Create lots of random patches
-            initial_memory_images = [get_random_patch(frame, video_config.AI_RESOLUTION) for _ in range(video_config.CACHE_SIZE)]
+            initial_memory_images = [image_to_tensor(get_random_patch(frame, video_config.AI_RESOLUTION)) for _ in range(video_config.CACHE_SIZE)]
             self.training_data = memory_from_dataset(DataSet(
                 initial_memory_images
             ))
@@ -73,6 +73,8 @@ class VisionModel:
 
         if self.training_iteration % 20000 == 0:
             torch.save(self.model.state_dict(), f"video_model-{self.training_iteration}.raw")
+
+        return training_loss
 
 
     def encode_decode_frames(self, frames: list[numpy.ndarray]) -> list[numpy.ndarray]:
