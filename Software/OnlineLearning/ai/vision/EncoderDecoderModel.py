@@ -33,13 +33,6 @@ class EncoderDecoderModel(nn.Module):
                 nn.LeakyReLU()
             ))
 
-        #encode = [
-        #   nn.Conv2d(in_channels=3, out_channels=5, kernel_size=5, padding=2)
-        #]
-        #decode = [
-        #    nn.Conv2d(in_channels=5, out_channels=3, kernel_size=5, padding=2)
-        #]
-
         decode.reverse()
         
         self.encode = nn.Sequential(*encode)
