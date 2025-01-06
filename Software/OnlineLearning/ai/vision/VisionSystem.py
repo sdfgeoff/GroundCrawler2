@@ -136,7 +136,7 @@ class VisionSystem:
             })
 
         new_image_scaled = get_filtered_scaled(new_image_raw, video_config.AI_RESOLUTION)
-        latent_space = self.vision_model.encode_frames([new_image_scaled])
+        latent_space = self.vision_model.encode_frames([new_image_scaled])[0]
 
         
         if video_config.SAVE_TRAINING_VIDEO:

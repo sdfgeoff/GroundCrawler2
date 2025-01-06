@@ -17,7 +17,7 @@ VIDEO_SOURCES = [
 
 VISION_MODEL_PATH = os.path.normpath(os.path.join(os.path.abspath(__file__), "../model-1100000.raw"))
 
-ENABLE_TRAIN = True
+ENABLE_TRAIN = False
 SAVE_TRAINING_VIDEO = True
 SAVE_TRAINING_DATASET_VIDEO = False
 

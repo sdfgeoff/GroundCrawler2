@@ -4,11 +4,10 @@ import random
 
 
 class VideoFolderSource():
-    def __init__(self, files: list[str], resolution: tuple[int, int]):
+    def __init__(self, files: list[str]):
         self.files: list[str] = files
         self.file_id: int = 0
         self.cam: cv2.VideoCapture = cv2.VideoCapture(self.files[self.file_id]) 
-        self.resolution = resolution
 
         self._frame_fullres: numpy.ndarray | None = None
 
