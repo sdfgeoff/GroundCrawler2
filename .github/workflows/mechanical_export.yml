@@ -6,7 +6,7 @@ jobs:
     steps:
     - name: Install Dependencies
       run: |
-        sudo apt-get install freecad tup prusa-slicer
+        sudo apt-get update && sudo apt-get install freecad tup prusa-slicer
     - name: Checkout
       uses: actions/checkout@v4
       with:
