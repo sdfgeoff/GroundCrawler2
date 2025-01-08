@@ -1,5 +1,5 @@
 import cv2
-import urllib
+import urllib.request
 
 
 ESP_IP = "192.168.18.19"
@@ -18,4 +18,4 @@ def fetch_image():
 
 def drive(forwards, steer):
     url = drive_url.format(forward=int(forwards * 100), steer=int(steer * 100))
-    contents = urllib.request.urlopen(url).read()
+    _contents = urllib.request.urlopen(url).read()

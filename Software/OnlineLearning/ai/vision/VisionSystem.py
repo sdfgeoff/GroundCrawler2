@@ -102,9 +102,9 @@ class VisionModel:
             self.training_setup.optimizer.zero_grad()
 
         if self.training_iteration % 20000 == 0:
-            torch.save(
+            torch.save(  # type: ignore
                 self.model.state_dict(), f"video_model-{self.training_iteration}.raw"
-            )  # type: ignore
+            ) 
 
         return loss
 

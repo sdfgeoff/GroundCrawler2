@@ -4,8 +4,8 @@ from ai.vision.image_util import NumpyImage
 
 
 class VideoFolderSource:
-    def __init__(self, files: list[str]):
-        self.files: list[str] = files
+    def __init__(self, files: list[str | int]):
+        self.files: list[str | int] = files
         self.file_id: int = 0
         self.cam: cv2.VideoCapture = cv2.VideoCapture(self.files[self.file_id])
 
