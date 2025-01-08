@@ -1,20 +1,19 @@
+# pyright: strict
 
 import random
 from typing import NamedTuple
-import numpy
 import torch
 from torch.utils.data import DataLoader
-from ai.vision import video_config
-from ai.vision.image_util import image_to_tensor
+from ai.vision.image_util import image_to_tensor, NumpyImage
 
 
-class DataSet(torch.utils.data.Dataset):
+class DataSet(torch.utils.data.Dataset[torch.FloatTensor]):
     def __init__(self, images: list[torch.FloatTensor]):
         self.images = images
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> torch.FloatTensor:
         img = self.images[idx]
-        return img, img
+        return img
     
     def __len__(self):
         return len(self.images)
@@ -23,11 +22,12 @@ class DataSet(torch.utils.data.Dataset):
 
 class DynamicMemory(NamedTuple):
     dataset: DataSet
-    dataloader: DataLoader
+    dataloader: DataLoader[torch.FloatTensor]
+    device: str
 
 
-def replace_random_image(memory: DynamicMemory, new_frame: numpy.ndarray) -> DynamicMemory:
-    new_patch = image_to_tensor(new_frame)
+def replace_random_image(memory: DynamicMemory, new_frame: NumpyImage) -> DynamicMemory:
+    new_patch = image_to_tensor(new_frame, memory.device)
     # The idea is that replacing a random image gives the image memory an exponential falloff
     # and stops recent frames from dominating completely by ensuring some old frames still exist.
     # If it were a FIFO, then a 512 image buffer is ~17 seconds.
@@ -35,13 +35,12 @@ def replace_random_image(memory: DynamicMemory, new_frame: numpy.ndarray) -> Dyn
     replace_frame_id = random.randrange(0, len(memory.dataset))
 
     new_dataset = [
-        t for i, (t, _f) in enumerate(memory.dataset) if i != replace_frame_id
+        t for i, t in enumerate(memory.dataset.images) if i != replace_frame_id
     ] + [new_patch]
-    assert len(new_dataset) == video_config.CACHE_SIZE
-    memory = memory_from_dataset(DataSet(new_dataset))
+    memory = memory_from_dataset(DataSet(new_dataset), memory.dataloader.batch_size, memory.device)
     return memory
 
 
-def memory_from_dataset(dataset: DataSet) -> DynamicMemory:
-    return DynamicMemory(dataset, DataLoader(dataset, batch_size=video_config.BATCH_SIZE))
+def memory_from_dataset(dataset: DataSet, batch_size: int | None, device: str) -> DynamicMemory:
+    return DynamicMemory(dataset, DataLoader(dataset, batch_size=batch_size), device=device)
 

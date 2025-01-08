@@ -1,25 +1,30 @@
+# pyright: strict
 import itertools
 import math
 from typing import Any
 import numpy
 import torch
-import torchvision.transforms as transforms
-from ai.vision import video_config
+import torchvision.transforms as transforms  # type: ignore
 from PIL import Image
 import random
 import cv2
 
 
-def tensor_to_image(tensor: torch.Tensor) -> numpy.ndarray:
+NumpyImage = numpy.ndarray[tuple[int, int, int], numpy.dtype[Any]]
+
+
+def tensor_to_image(tensor: torch.Tensor) -> NumpyImage:
     #arr =  (tensor.permute(1,2,0)).clip(0, 1).detach().cpu().numpy().astype(numpy.float32)
     #return (arr * 255).astype(numpy.uint8)
-    return numpy.array(transforms.functional.to_pil_image((tensor * 255.0).clip(0, 255).byte(), mode='RGB'))
+    as_bytes = (tensor * 255.0).clip(0, 255).byte()
+    as_image: Image = transforms.functional.to_pil_image(as_bytes, mode='RGB')  # type: ignore
+    return numpy.array(as_image)  # type: ignore
 
 
-def image_to_tensor(image: numpy.ndarray) -> torch.Tensor:
-    #arr = image / 255
-    #return torch.FloatTensor(arr).permute(2,0,1).to(config.DEVICE)
-    return (transforms.functional.pil_to_tensor(Image.fromarray(image)).float() / 255).to(video_config.DEVICE)
+def image_to_tensor(image: NumpyImage, device: str) -> torch.FloatTensor:
+    as_image = Image.fromarray(image)
+    as_tensor : torch.Tensor = transforms.functional.to_tensor(as_image)  # type: ignore
+    return (as_tensor.float() / 255.0).to(device)  # type: ignore
 
 
 def tile_images(images: list[numpy.ndarray[tuple[int, int, int], numpy.dtype[Any]]]) -> numpy.ndarray[tuple[int, int, int], numpy.dtype[Any]]:
@@ -39,13 +44,13 @@ def tile_images(images: list[numpy.ndarray[tuple[int, int, int], numpy.dtype[Any
     return imgmatrix
 
 
-def upscale_image(image: numpy.ndarray, multiplier: int) -> numpy.ndarray:
+def upscale_image(image: NumpyImage, multiplier: int) -> NumpyImage:
     return image.repeat(multiplier,axis=0).repeat(multiplier,axis=1)
 
 
 
 
-def get_filtered_scaled(image: numpy.ndarray, resolution: tuple[int, int]) -> numpy.ndarray:
+def get_filtered_scaled(image: NumpyImage, resolution: tuple[int, int]) -> NumpyImage:
     """ Returns the entire image scaled to resolution """
     image = cv2.resize(
         image,
@@ -56,7 +61,7 @@ def get_filtered_scaled(image: numpy.ndarray, resolution: tuple[int, int]) -> nu
     return image
 
 
-def get_filtered_patch(image: numpy.ndarray, resolution: tuple[int, int]) -> numpy.ndarray:
+def get_filtered_patch(image: NumpyImage, resolution: tuple[int, int]) -> NumpyImage:
     """ Returns a random part of the image at resolution """
     image = get_random_patch(image, resolution)
     image = cv2.medianBlur(image,3)
@@ -65,7 +70,7 @@ def get_filtered_patch(image: numpy.ndarray, resolution: tuple[int, int]) -> num
 
 
 
-def get_random_patch(image, target_resolution):
+def get_random_patch(image: NumpyImage, target_resolution: tuple[int, int]):
     """
     Extract a random patch from an image with random scale, rotation, and position, 
     and optionally scale the output to a target resolution.
@@ -118,7 +123,6 @@ def get_random_patch(image, target_resolution):
     patch = rotated_image[top_left_y:bottom_right_y, top_left_x:bottom_right_x]
 
     # Scale the patch to the target resolution if specified
-    if target_resolution is not None:
-        patch = cv2.resize(patch, target_resolution, interpolation=cv2.INTER_LINEAR)
+    patch = cv2.resize(patch, target_resolution, interpolation=cv2.INTER_LINEAR)
 
     return patch

@@ -1,6 +1,6 @@
+# pyright: strict
 import cv2
-import numpy
-import random
+from ai.vision.image_util import NumpyImage
 
 
 class VideoFolderSource():
@@ -9,7 +9,7 @@ class VideoFolderSource():
         self.file_id: int = 0
         self.cam: cv2.VideoCapture = cv2.VideoCapture(self.files[self.file_id]) 
 
-        self._frame_fullres: numpy.ndarray | None = None
+        self._frame_fullres: NumpyImage | None = None
 
     def next_video(self) -> None:
         self.file_id += 1
@@ -28,14 +28,16 @@ class VideoFolderSource():
 
         self._frame_fullres = frame
     
-    def _get_frame(self) -> numpy.ndarray | None:
+    def _get_frame(self) -> NumpyImage | None:
         ret,frame = self.cam.read() 
         if ret:
             return frame
         return None
     
-    def get_full(self) -> numpy.ndarray:
+    def get_frame(self) -> NumpyImage:
         """ Returns the entire image """
+        assert self._frame_fullres is not None
+        
         return self._frame_fullres
 
 

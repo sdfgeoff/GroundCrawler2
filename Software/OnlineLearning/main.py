@@ -1,57 +1,63 @@
-from dataclasses import dataclass
-import io
-from typing import NamedTuple
-
-import numpy
+# pyright: strict
+import os
+from threading import Thread
 import torch
 from ai.vision.VisionSystem import VisionSystem
 from ai.vision.VideoLoader import VideoFolderSource
 import time
 from ai.vision import video_config
-from fastapi import FastAPI, Response
-from threading import Thread
 from ai.vision.image_util import get_filtered_scaled
-import chassis
-import uvicorn
-from PIL import Image
-
-class ActionTensor(NamedTuple):
-    drive: float
-    steer: float
 
 
-@dataclass
-class SharedState:
-    action_tensor: ActionTensor
-    latent_space: torch.FloatTensor
-    camera_image: numpy.ndarray
+from webserver.app import SHARED_STATE_MUTEX, SHARED_STATE, launch_webserver
 
 
-shared_state = SharedState(
-    action_tensor=ActionTensor(0, 0),
-    latent_space=torch.zeros(121).float(),
-    camera_image=numpy.zeros((640, 480, 3), dtype=numpy.uint8)
+
+vision_config = video_config.VideoSystemConfig(
+    vision_model = video_config.VideoModelConfig(
+        initial_model_path='../../../pytorch-learning/model-1100000.raw',
+        device = "cuda" if torch.cuda.is_available() else "cpu",
+        cache_size=512,
+        batch_size=512,
+        resolution=(160, 90)
+    ),
+    train_enabled=True,
+    training_video_show=False,
+    training_video_save=True,
+    training_dataset_video_save=False,
+    training_dataset_frames_between_update=1
 )
 
 
-vision_system = VisionSystem()
-
 def ai_thread():
-    vid = VideoFolderSource(video_config.VIDEO_SOURCES)
-
+    VID_FOLDER = "../../../pytorch-learning/Data"
+    VIDEO_SOURCE = [
+    #     # "http://192.168.18.19/capture"  # ESP32
+       #0  # Webcam connected to the training PC
+         os.path.join(VID_FOLDER, f) for f in os.listdir(VID_FOLDER) if os.path.exists(os.path.join(VID_FOLDER, f))
+    ]
+    vid = VideoFolderSource(VIDEO_SOURCE)
     vid.step()
+
+    vision_system = VisionSystem(vision_config)
 
     t = 0
     prev_time = time.time()
     while True:
         t += 1
         vid.step()
-        new_frame = vid.get_full()
-        latent_space = vision_system.ingest_frame(new_frame)
+        new_frame = vid.get_frame()
 
-        # chassis.drive(shared_state.action_tensor.drive, shared_state.action_tensor.steer)
-        shared_state.camera_image = get_filtered_scaled(new_frame, video_config.AI_RESOLUTION)
-        shared_state.latent_space = latent_space
+        with SHARED_STATE_MUTEX:
+            shared_state = SHARED_STATE
+            latent_space = vision_system.ingest_frame(new_frame)
+
+            shared_state.camera_image = get_filtered_scaled(new_frame, vision_config.vision_model.resolution)
+            shared_state.latent_space = latent_space
+            shared_state.vision_system = vision_system
+
+            # chassis.drive(shared_state.action_tensor.drive, shared_state.action_tensor.steer)
+
  
         # Print FPS
         if t % 10 == 0:
@@ -61,77 +67,15 @@ def ai_thread():
 
 
 
-
-app = FastAPI()
-
-
-
-
-def numpy_array_to_response_image(array: numpy.ndarray) -> Response:
-    im = Image.fromarray(array)
-
-    # save image to an in-memory bytes buffer
-    with io.BytesIO() as buf:
-        im.save(buf, format='PNG')
-        im_bytes = buf.getvalue()
-
-    headers = {'Content-Disposition': 'inline; filename="test.png"'}
-    return Response(im_bytes, headers=headers, media_type='image/png')
-
-
-
-
-@app.on_event("startup")
-async def startup_event():
-    thread = Thread(target=ai_thread)
-    thread.start()
-
-
-
-@app.get("/camera/full")
-def get_camera_image():
-    return numpy_array_to_response_image(shared_state.camera_image)
-
-@app.get("/camera/reconstructed")
-def get_reconstructed_image():
-    reconstructed = vision_system.vision_model.decode_frames([shared_state.latent_space])[0]
-    return numpy_array_to_response_image(reconstructed)
-
-INDEX = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>AI Car</title>
-</head>
-<body>
-    <h1>AI Car</h1>
-    <img id="full" src="/camera/full" />
-    <img id="reconstructed" src="/camera/reconstructed" />
-</body>
-</html>
-
-<script>
-    setInterval(() => {
-        document.querySelector("#reconstructed").src = "/camera/reconstructed?" + Date.now();
-    }, 100);
-    setInterval(() => {
-        document.querySelector("#full").src = "/camera/full?" + Date.now();
-    }, 100);
-</script>
-"""
-
-@app.get("/")
-def get_index():
-    return Response(INDEX, media_type="text/html")
-
-
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    #ai_thread()
+    ai_thread_instance = Thread(target=ai_thread, daemon=True)
+    ai_thread_instance.start()
 
+    webserver_thread_instance = Thread(target=launch_webserver, daemon=True)
+    webserver_thread_instance.start()
 
-
-if __name__ == "__main__":
-    ai_thread()
-
+    while True:
+        time.sleep(1.0) # Everythign happens in threads
 
 
