@@ -1,4 +1,3 @@
-# pyright: strict
 import itertools
 import math
 from typing import Any

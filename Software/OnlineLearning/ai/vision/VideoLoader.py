@@ -1,4 +1,3 @@
-# pyright: strict
 import cv2
 from ai.vision.image_util import NumpyImage
 

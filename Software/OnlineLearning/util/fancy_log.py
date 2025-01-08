@@ -1,4 +1,3 @@
-# pyright: strict
 import functools
 from typing import Any
 import cv2

@@ -1,4 +1,3 @@
-# pyright: strict
 from typing import NamedTuple
 import cv2
 import torch

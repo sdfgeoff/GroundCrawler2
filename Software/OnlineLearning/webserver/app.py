@@ -13,7 +13,7 @@ from ai.vision.image_util import NumpyImage
 
 
 class ActionTensor(NamedTuple):
-    drive: float
+    forwards: float
     steer: float
 
 

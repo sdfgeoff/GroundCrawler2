@@ -1,4 +1,3 @@
-# pyright: strict
 import os
 from threading import Thread
 import torch
@@ -9,6 +8,7 @@ from ai.vision import video_config
 from ai.vision.image_util import get_filtered_scaled
 
 
+import chassis
 from webserver.app import SHARED_STATE_MUTEX, SHARED_STATE, launch_webserver
 
 
@@ -57,7 +57,7 @@ def ai_thread():
             shared_state.latent_space = latent_space
             shared_state.vision_system = vision_system
 
-            # chassis.drive(shared_state.action_tensor.drive, shared_state.action_tensor.steer)
+            chassis.drive(shared_state.action_tensor.forwards, shared_state.action_tensor.steer)
 
         # Print FPS
         if t % 10 == 0:
