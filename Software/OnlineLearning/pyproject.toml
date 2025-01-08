@@ -27,3 +27,8 @@ torch = [
 torchvision = [
     { index = "pytorch-cu124", marker = "platform_system != 'Darwin'" },
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8.6",
+]

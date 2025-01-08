@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 @dataclass
 class VideoModelConfig:
     initial_model_path: str | None
@@ -19,4 +20,3 @@ class VideoSystemConfig:
 
     training_dataset_video_save: bool
     training_dataset_frames_between_update: int
-
