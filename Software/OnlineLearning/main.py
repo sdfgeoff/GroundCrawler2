@@ -15,7 +15,7 @@ from webserver.app import SHARED_STATE_MUTEX, SHARED_STATE, launch_webserver
 
 vision_config = video_config.VideoSystemConfig(
     vision_model = video_config.VideoModelConfig(
-        initial_model_path='../../../pytorch-learning/model-1100000.raw',
+        initial_model_path=None, # 'ai/vision/model-1100000.raw',
         device = "cuda" if torch.cuda.is_available() else "cpu",
         cache_size=512,
         batch_size=512,
@@ -23,7 +23,7 @@ vision_config = video_config.VideoSystemConfig(
     ),
     train_enabled=True,
     training_video_show=False,
-    training_video_save=True,
+    training_video_save=False,
     training_dataset_video_save=False,
     training_dataset_frames_between_update=1
 )
@@ -33,8 +33,8 @@ def ai_thread():
     VID_FOLDER = "../../../pytorch-learning/Data"
     VIDEO_SOURCE = [
     #     # "http://192.168.18.19/capture"  # ESP32
-       #0  # Webcam connected to the training PC
-         os.path.join(VID_FOLDER, f) for f in os.listdir(VID_FOLDER) if os.path.exists(os.path.join(VID_FOLDER, f))
+       0  # Webcam connected to the training PC
+    #     os.path.join(VID_FOLDER, f) for f in os.listdir(VID_FOLDER) if os.path.exists(os.path.join(VID_FOLDER, f))
     ]
     vid = VideoFolderSource(VIDEO_SOURCE)
     vid.step()

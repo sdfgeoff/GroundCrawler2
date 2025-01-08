@@ -14,20 +14,18 @@ NumpyImage = numpy.ndarray[tuple[int, int, int], numpy.dtype[Any]]
 
 
 def tensor_to_image(tensor: torch.Tensor) -> NumpyImage:
-    #arr =  (tensor.permute(1,2,0)).clip(0, 1).detach().cpu().numpy().astype(numpy.float32)
-    #return (arr * 255).astype(numpy.uint8)
     as_bytes = (tensor * 255.0).clip(0, 255).byte()
     as_image: Image = transforms.functional.to_pil_image(as_bytes, mode='RGB')  # type: ignore
     return numpy.array(as_image)  # type: ignore
-
+    
 
 def image_to_tensor(image: NumpyImage, device: str) -> torch.FloatTensor:
     as_image = Image.fromarray(image)
-    as_tensor : torch.Tensor = transforms.functional.to_tensor(as_image)  # type: ignore
+    as_tensor : torch.Tensor = transforms.functional.pil_to_tensor(as_image)  # type: ignore
     return (as_tensor.float() / 255.0).to(device)  # type: ignore
 
 
-def tile_images(images: list[numpy.ndarray[tuple[int, int, int], numpy.dtype[Any]]]) -> numpy.ndarray[tuple[int, int, int], numpy.dtype[Any]]:
+def tile_images(images: list[NumpyImage]) -> NumpyImage:
     dimension = math.ceil(len(images) ** 0.5)
     height, width, channels = images[0].shape
     imgmatrix = numpy.zeros((dimension * height, dimension * width, channels))
