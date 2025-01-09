@@ -9,6 +9,7 @@ jobs:
         sudo apt-get update && sudo apt-get install tup prusa-slicer
         sudo snap install freecad
         sudo ln -s $(which freecad) /usr/bin/freecadcmd
+        freecadcmd --help
     - name: Checkout
       uses: actions/checkout@v4
       with:
