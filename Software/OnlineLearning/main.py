@@ -1,4 +1,3 @@
-import os
 from threading import Thread
 import torch
 from ai.vision.VisionSystem import VisionSystem
@@ -29,8 +28,8 @@ vision_config = video_config.VideoSystemConfig(
 
 
 def ai_thread():
-    VID_FOLDER = "../../../pytorch-learning/Data"
-    VIDEO_SOURCE = [
+    # VID_FOLDER = "../../../pytorch-learning/Data"
+    VIDEO_SOURCE: list[str | int] = [
         #     # "http://192.168.18.19/capture"  # ESP32
         0  # Webcam connected to the training PC
         #     os.path.join(VID_FOLDER, f) for f in os.listdir(VID_FOLDER) if os.path.exists(os.path.join(VID_FOLDER, f))
@@ -57,7 +56,9 @@ def ai_thread():
             shared_state.latent_space = latent_space
             shared_state.vision_system = vision_system
 
-            chassis.drive(shared_state.action_tensor.forwards, shared_state.action_tensor.steer)
+            chassis.drive(
+                shared_state.action_tensor.forwards, shared_state.action_tensor.steer
+            )
 
         # Print FPS
         if t % 10 == 0:

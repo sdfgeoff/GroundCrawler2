@@ -18,10 +18,5 @@ def fetch_image() -> NumpyImage:
 
 
 def drive(forwards: float, steer: float) -> None:
-    url = drive_url.format(
-        forward=int(forwards * 100),
-        steer=int(steer * 100)
-    )
-    _contents = urllib.request.urlopen(
-        url
-    ).read()
+    url = drive_url.format(forward=int(forwards * 100), steer=int(steer * 100))
+    _contents = urllib.request.urlopen(url).read()
