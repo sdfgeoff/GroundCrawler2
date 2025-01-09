@@ -1,4 +1,3 @@
-import os
 from threading import Thread
 import torch
 from ai.vision.VisionSystem import VisionSystem
@@ -29,8 +28,8 @@ vision_config = video_config.VideoSystemConfig(
 
 
 def ai_thread():
-    VID_FOLDER = "../../../pytorch-learning/Data"
-    VIDEO_SOURCE = [
+    # VID_FOLDER = "../../../pytorch-learning/Data"
+    VIDEO_SOURCE: list[str | int] = [
         #     # "http://192.168.18.19/capture"  # ESP32
         0  # Webcam connected to the training PC
         #     os.path.join(VID_FOLDER, f) for f in os.listdir(VID_FOLDER) if os.path.exists(os.path.join(VID_FOLDER, f))

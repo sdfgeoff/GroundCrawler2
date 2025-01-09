@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import threading
-from typing import NamedTuple, cast
+from typing import NamedTuple
 from fastapi import Depends, FastAPI, Response
 import numpy
 import io
