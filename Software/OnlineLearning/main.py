@@ -56,7 +56,9 @@ def ai_thread():
             shared_state.latent_space = latent_space
             shared_state.vision_system = vision_system
 
-            chassis.drive(shared_state.action_tensor.forwards, shared_state.action_tensor.steer)
+            chassis.drive(
+                shared_state.action_tensor.forwards, shared_state.action_tensor.steer
+            )
 
         # Print FPS
         if t % 10 == 0:

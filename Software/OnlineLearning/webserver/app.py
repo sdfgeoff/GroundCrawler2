@@ -73,13 +73,14 @@ class DriveCommand(BaseModel):
     drive: float
     steer: float
 
+
 @app.post("/drive")
-def post_drive_command(command: DriveCommand, shared_state: SharedState = Depends(shared_state)):
+def post_drive_command(
+    command: DriveCommand, shared_state: SharedState = Depends(shared_state)
+):
     with SHARED_STATE_MUTEX:
         SHARED_STATE.action_tensor = ActionTensor(command.drive, command.steer)
     return Response(status_code=204)
-
-
 
 
 INDEX = """
