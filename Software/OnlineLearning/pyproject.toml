@@ -38,3 +38,9 @@ dev = [
 
 [tool.pyright]
 strict = ["*.py"]
+
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
