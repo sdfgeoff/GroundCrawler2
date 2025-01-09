@@ -1,5 +1,3 @@
-# pyright: strict
-
 import random
 from typing import NamedTuple
 import torch

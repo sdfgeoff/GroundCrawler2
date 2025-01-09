@@ -1,4 +1,3 @@
-# pyright: strict
 from typing import NamedTuple
 import cv2
 import torch
@@ -104,7 +103,7 @@ class VisionModel:
         if self.training_iteration % 20000 == 0:
             torch.save(  # type: ignore
                 self.model.state_dict(), f"video_model-{self.training_iteration}.raw"
-            ) 
+            )
 
         return loss
 
